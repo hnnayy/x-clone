@@ -68,18 +68,18 @@ const menuList = [
 ]
 function LeftBar() {
   return (
-      <div className="h-screen sticky top-0 flex flex-col  pt-2 pb-8 items-center">
+      <div className="h-screen sticky top-0 flex flex-col  pt-2 pb-8 items-center text-[#2a623d]">
         {/*logo menu button*/}
         <div className="flex flex-col gap-2 text-lg items-center">
             {/* logo */}
-            <Link href="/" className='p-2 rounded-full hover:bg-gray-200 w-full max-w-[400px]'>
-            <Image src="/icons/logo.png" alt="logo" width={100} height={100} />
+            <Link href="/" className='p-2 rounded-full hover:bg-[#FFE2E2] w-full max-w-[400px] flex justify-center items-center'>
+                <Image src="/icons/logo.png" alt="logo" width={100} height={100} />
             </Link>
         </div>
         {/* menu list */}
         <div className="flex flex-col">
             {menuList.map((item) => (
-                <Link href={item.link} className='p-2 rounded-full hover:bg-gray-200 flex items-center gap-4' 
+                <Link href={item.link} className='p-2 rounded-full hover:bg-[#FFE2E2] flex items-center gap-4' 
                 key={item.id}>
                         <Image
                             src={`/icons/${item.icon}`}
@@ -94,7 +94,7 @@ function LeftBar() {
         </div>
         <div className="flex items-center gap-2">
             {/* Button Icon (Muncul hanya di xsm & sm) */}
-            <Link href="/" className="w-12 h-12 flex items-center justify-center rounded-full hover:bg-gray-200 block md:hidden">
+            <Link href="/" className="w-12 h-12 flex items-center justify-center rounded-full hover:bg-[#FFE2E2] block md:hidden">
                 <Image src="/icons/post.png" alt="New Post" width={24} height={24} />
             </Link>
 
@@ -105,7 +105,7 @@ function LeftBar() {
         </div>
 
        {/* Bagian User */}
-        <div className="flex items-center gap-2 px-3 py-2 mt-auto rounded-full hover:bg-gray-200 w-full max-w-[400px]">
+        <div className="flex items-center gap-2 px-3 py-2 mt-auto rounded-full hover:bg-[#FFE2E2] w-full max-w-[400px]">
             <div className="w-10 h-10 relative rounded-full overflow-hidden">
                 <Image src="/profil-picture.jpg" alt="user" fill className="object-cover" />
             </div>
