@@ -9,6 +9,7 @@ export default function Home() {
     <div>
       HomePage
       <IKImage urlEndpoint={urlEndpoint} path="/general/default-image.jpg" />
+      this image cannot open
     </div>
   );
 }
