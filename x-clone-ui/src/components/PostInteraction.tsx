@@ -4,7 +4,7 @@ import React from "react";
 const PostInteraction = () => {
   return (
     <div className="flex items-center justify-between my-2 text-[#2a623d]">
-      <div className="flex gap-x-7">
+      <div className="flex gap-x-13">
         {/* COMMENT */}
         <div className="flex items-center gap-1 group cursor-pointer transition-colors">
           <div className="p-1 rounded-full group-hover:bg-[#FFE2E2] transition">
@@ -37,7 +37,7 @@ const PostInteraction = () => {
             </svg>
           </div>
           <span className="text-xs group-hover:text-[#27548A] transition-colors">
-            157
+            57
           </span>
         </div>
 
@@ -55,19 +55,40 @@ const PostInteraction = () => {
             </svg>
           </div>
           <span className="text-xs group-hover:text-[#7D0A0A] transition-colors">
-            157
+            257
           </span>
         </div>
 
-        
-      </div>
-      {/* BOOKMARK */}
-      <div className="flex items-center group cursor-pointer transition-colors ml-40">
-          <div className="p-1 rounded-full group-hover:bg-[#c0abe4] transition">
+        {/* VIEWS */}
+        <div className="flex items-center gap-1 group cursor-pointer transition-colors">
+          <div className="p-1 rounded-full group-hover:bg-[#7186a260] transition">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
               height="20"
+              viewBox="0 0 24 24"
+              className="fill-current group-hover:fill-[#576586] transition-colors"
+            >
+              <path d="M12 5c-7.633 0-12 6.268-12 7s4.367 7 12 7 12-6.268 12-7-4.367-7-12-7zm0 12c-4.97 0-8.94-3.134-10.486-5 1.546-1.866 5.516-5 10.486-5s8.94 3.134 10.486 5c-1.546 1.866-5.516 5-10.486 5zm0-9c-2.209 0-4 1.791-4 4s1.791 4 4 4 4-1.791 4-4-1.791-4-4-4zm0 6c-1.105 0-2-.896-2-2s.895-2 2-2 2 .896 2 2-.895 2-2 2z" />
+            </svg>
+          </div>
+          <span className="text-xs group-hover:text-[#34384d] transition-colors">
+            257
+          </span>
+        </div>
+      </div>
+
+      <div className="">
+        
+      </div>
+      <div className="flex items-center gap-1 ml-1 ">
+        {/* BOOKMARK */}
+        <div className="flex items-center group cursor-pointer transition-colors">
+          <div className="p-1 rounded-full group-hover:bg-[#c0abe4] transition">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
               viewBox="0 0 24 24"
               className="fill-current group-hover:fill-[#7e55c6] transition-colors"
             >
@@ -77,12 +98,12 @@ const PostInteraction = () => {
         </div>
 
         {/* SHARE */}
-        <div className="flex items-center group cursor-pointer transition-colors gap-0">
+        <div className="flex items-center group cursor-pointer transition-colors">
           <div className="p-1 rounded-full group-hover:bg-[#c0abe4] transition">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
+              width="18"
+              height="18"
               viewBox="0 0 24 24"
               className="fill-current group-hover:fill-[#7e55c6] transition-colors"
             >
@@ -90,7 +111,7 @@ const PostInteraction = () => {
             </svg>
           </div>
         </div>
-        
+      </div>
     </div>
   );
 };

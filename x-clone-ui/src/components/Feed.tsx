@@ -4,7 +4,7 @@ import Post from './Post'
 function Feed() {
   return (
     <div>
-      tes feed
+      {/* FEED */}
       <Post />
       <Post />
       <Post />
