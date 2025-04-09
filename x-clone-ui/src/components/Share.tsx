@@ -1,15 +1,111 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import dynamic from "next/dynamic";
 import Image from "./Image";
 import { shareAction } from "@/actions";
 
 const ShareForm = () => {
-  const [media, setMedia] = useState<File | null>(null);
+  const [media, setMedia] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  
+  // For simple cropping functionality
+  const [cropStart, setCropStart] = useState({ x: 0, y: 0 });
+  const [cropEnd, setCropEnd] = useState({ x: 0, y: 0 });
+  const [isCropping, setIsCropping] = useState(false);
+  const imageRef = useRef(null);
 
-  const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMediaChange = (e) => {
     if (e.target.files && e.target.files[0]) {
-      setMedia(e.target.files[0]);
+      const file = e.target.files[0];
+      setMedia(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
+  const handleMouseDown = (e) => {
+    if (!isEditing) return;
+    
+    const rect = imageRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    setCropStart({ x, y });
+    setCropEnd({ x, y });
+    setIsCropping(true);
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isEditing || !isCropping) return;
+    
+    const rect = imageRef.current.getBoundingClientRect();
+    const x = Math.min(Math.max(0, e.clientX - rect.left), rect.width);
+    const y = Math.min(Math.max(0, e.clientY - rect.top), rect.height);
+    
+    setCropEnd({ x, y });
+  };
+
+  const handleMouseUp = () => {
+    if (!isEditing) return;
+    setIsCropping(false);
+    
+    if (Math.abs(cropStart.x - cropEnd.x) < 10 || Math.abs(cropStart.y - cropEnd.y) < 10) {
+      // Ignore very small crop selections
+      return;
+    }
+    
+    applyCrop();
+  };
+
+  const applyCrop = () => {
+    if (!imageRef.current) return;
+    
+    const image = imageRef.current;
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Calculate crop coordinates
+    const startX = Math.min(cropStart.x, cropEnd.x);
+    const startY = Math.min(cropStart.y, cropEnd.y);
+    const width = Math.abs(cropEnd.x - cropStart.x);
+    const height = Math.abs(cropEnd.y - cropStart.y);
+    
+    // Set canvas dimensions to the cropped size
+    canvas.width = width;
+    canvas.height = height;
+    
+    // Draw only the cropped portion to the canvas
+    ctx.drawImage(
+      image,
+      startX, startY, width, height,
+      0, 0, width, height
+    );
+    
+    // Convert to data URL and update preview
+    const newPreviewUrl = canvas.toDataURL('image/jpeg');
+    setPreviewUrl(newPreviewUrl);
+    
+    // Convert data URL to File object for upload
+    canvas.toBlob((blob) => {
+      const croppedFile = new File([blob], media.name, { type: 'image/jpeg' });
+      setMedia(croppedFile);
+    }, 'image/jpeg');
+    
+    // Exit edit mode
+    setIsEditing(false);
+  };
+
+  const cancelCrop = () => {
+    setIsEditing(false);
+    setCropStart({ x: 0, y: 0 });
+    setCropEnd({ x: 0, y: 0 });
+  };
+
+  const toggleEditMode = () => {
+    setIsEditing(!isEditing);
+    if (!isEditing) {
+      setCropStart({ x: 0, y: 0 });
+      setCropEnd({ x: 0, y: 0 });
     }
   };
 
@@ -24,7 +120,7 @@ const ShareForm = () => {
           alt="profile avatar"
           className="rounded-full"
         />
-      </div>
+      </div> 
       {/* OTHERS */}
       <div className="flex-1 flex flex-col gap-4">
         <input 
@@ -145,26 +241,114 @@ const ShareForm = () => {
         {/* Preview uploaded media if available */}
         {media && (
           <div className="mt-2 relative">
-            <div className="relative rounded-lg overflow-hidden max-h-80">
+            <div 
+              className={`relative rounded-lg overflow-hidden max-h-80 ${isEditing ? 'cursor-crosshair' : ''}`}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={() => isCropping && setIsCropping(false)}
+            >
               <img 
-                src={URL.createObjectURL(media)} 
+                ref={imageRef}
+                src={previewUrl} 
                 alt="Upload preview" 
                 className="w-full object-contain"
               />
-              <div 
-                onClick={() => setMedia(null)}
-                className="absolute top-2 right-2 bg-black bg-opacity-50 text-white rounded-full p-1 cursor-pointer"
-                aria-label="Remove image"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                  <path 
-                    fill="currentColor" 
-                    d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
-                  />
-                </svg>
+              
+              {/* Crop overlay */}
+              {isEditing && isCropping && (
+                <div 
+                  className="absolute border-2 border-white"
+                  style={{
+                    left: Math.min(cropStart.x, cropEnd.x) + 'px',
+                    top: Math.min(cropStart.y, cropEnd.y) + 'px',
+                    width: Math.abs(cropEnd.x - cropStart.x) + 'px',
+                    height: Math.abs(cropEnd.y - cropStart.y) + 'px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.3)'
+                  }}
+                ></div>
+              )}
+              
+              {/* Edit/Remove buttons */}
+              <div className="absolute top-2 right-2 flex gap-2">
+                {!isEditing ? (
+                  <>
+                    {/* Edit button */}
+                    <div 
+                      onClick={toggleEditMode}
+                      className="bg-black bg-opacity-50 text-white rounded-full p-1 cursor-pointer"
+                      aria-label="Edit image"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                        <path 
+                          fill="currentColor" 
+                          d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
+                        />
+                      </svg>
+                    </div>
+                    {/* Remove button */}
+                    <div 
+                      onClick={() => setMedia(null)}
+                      className="bg-black bg-opacity-50 text-white rounded-full p-1 cursor-pointer"
+                      aria-label="Remove image"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                        <path 
+                          fill="currentColor" 
+                          d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+                        />
+                      </svg>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* Apply crop button */}
+                    <div 
+                      onClick={applyCrop}
+                      className="bg-black bg-opacity-50 text-white rounded-full p-1 cursor-pointer"
+                      aria-label="Apply crop"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                        <path 
+                          fill="currentColor" 
+                          d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"
+                        />
+                      </svg>
+                    </div>
+                    {/* Cancel crop button */}
+                    <div 
+                      onClick={cancelCrop}
+                      className="bg-black bg-opacity-50 text-white rounded-full p-1 cursor-pointer"
+                      aria-label="Cancel crop"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                        <path 
+                          fill="currentColor" 
+                          d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+                        />
+                      </svg>
+                    </div>
+                  </>
+                )}
               </div>
+              
+              {/* Editing instructions */}
+              {isEditing && (
+                <div className="absolute bottom-2 left-2 right-2 bg-black bg-opacity-70 text-white text-sm p-2 rounded">
+                  Click and drag to select the area to crop
+                </div>
+              )}
             </div>
           </div>
+        )}
+        
+        {/* Hidden input to store the cropped image data for form submission */}
+        {media && (
+          <input 
+            type="hidden" 
+            name="croppedImage" 
+            value={previewUrl} 
+          />
         )}
       </div>
     </form>
