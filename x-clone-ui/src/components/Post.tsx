@@ -4,6 +4,8 @@ import PostInfo from "./PostInfo";
 import PostInteraction from "./PostInteraction";
 
 const Post = () => {
+
+  
   return (
     <div className="p-4 border-b border-[#6abf87] text-black">
       {/* Repost Info */}
