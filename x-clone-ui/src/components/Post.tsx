@@ -2,6 +2,8 @@ import React from "react";
 import Image from "./Image";
 import PostInfo from "./PostInfo";
 import PostInteraction from "./PostInteraction";
+import { Accordion, Title } from '@mantine/core';
+
 
 const Post = () => {
 
@@ -51,6 +53,8 @@ const Post = () => {
             alt="post"
             className="rounded-lg mt-3"
           />
+
+        
             
             {/* Post Actions */}
             <div className="">
